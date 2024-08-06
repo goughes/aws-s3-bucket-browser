@@ -7,15 +7,16 @@
     <!-- Configuration -->
     <script>
         const config = {
-            title: 'Bucket Browser', // prefix value with `HTML> ` to render as html, see subtitle
-            subtitle: 'HTML>made with ♥ by <b><a href="https://qoo.monster">qoomon</a></b>', // prefix value with `HTML> ` to render as html
-            logo: 'https://qoomon.github.io/aws-s3-bucket-browser/logo.png',
-            favicon: 'https://qoomon.github.io/aws-s3-bucket-browser/favicon.ico',
-            primaryColor: '#167df0',
+            title: '<title goes here>', // prefix value with `HTML> ` to render as html, see subtitle
+            subtitle: '<subtitle goes here>', // prefix value with `HTML> ` to render as html
+            logo: 'https://upload.wikimedia.org/wikipedia/commons/3/35/Purdue_Boilermakers_logo.svg',
+            favicon: 'https://marcom.purdue.edu/favicon.ico',
+            primaryColor: '#000000',
 
             bucketUrl: undefined,
             // If bucketUrl is undefined, this script tries to determine bucket Rest API URL from this file location itself.
             //   This will only work for locations like these
+            //   * http://BUCKET.s3-hosted.rcac.purdue.edu/index.html
             //   * https://s3.BUCKET-REGION.amazonaws.com/BUCKET-NAME/index.html
             //   * http://BUCKET-NAME.s3-website-BUCKET-REGION.amazonaws.com/index.html
             //   * https://storage.googleapis.com/BUCKET-NAME/index.html
@@ -595,6 +596,11 @@
     let type
 
     if (!match) {
+        type = 'RCAC'
+        // check for urls like http://s3-hosted.rcac.purdue.edu/index.html
+        match = config.bucketUrl.match(/(?<protocol>[^:]+):\/\/(?<name>.+)\.s3-hosted\.rcac\.purdue\.edu(\/(?<prefix>[^?]+))?/)
+    }
+    if (!match) {
         type = 'AWS'
         // check for urls like https://s3.eu-central-1.amazonaws.com/example-bucket/index.html
         match = config.bucketUrl.match(/(?<protocol>[^:]+):\/\/s3\.(?<region>[^.]+)\.amazonaws.com\/(?<name>[^/]+)(\/(?<prefix>[^?]+))?/)
@@ -628,6 +634,9 @@
 
     if (match) {
         switch (type) {
+            case 'RCAC':
+                config.bucketUrl = `https://s3.rcac.purdue.edu/${match.groups.name}`
+                break;
             case 'AWS':
                 config.bucketUrl = `${match.groups.protocol}://s3.${match.groups.region}.amazonaws.com/${match.groups.name}`
                 break;
